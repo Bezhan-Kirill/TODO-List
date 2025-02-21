@@ -3,7 +3,6 @@ const form = document.querySelector('#form');
 const taskInput = document.querySelector('#taskInput');
 const tasksList = document.querySelector('#tasksList');
 const emptyList = document.querySelector('#emptyList');
-// var index = 0;
 
 let tasks = [];
 
@@ -28,9 +27,7 @@ tasksList.addEventListener('click', doneTask)
 
 function addTask(event) {
 
-    // отменяем отправку формы
     event.preventDefault();
-
     // Досатем текст задачи из поля
     const taskText = taskInput.value;
 
@@ -51,9 +48,10 @@ function addTask(event) {
     };
 
     const newTask = {
+        userId: 1,
         id: index,
-        text: taskText,
-        done: false,
+        title: taskText,
+        completed: false,
     };
 
     // Добавляем задачу в массив с задачами
@@ -63,6 +61,21 @@ function addTask(event) {
     saveToLocalStorage();
 
     renderTask(newTask);
+
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+        method: 'POST',
+        body: JSON.stringify({
+            userId: 1,
+            id: index,
+            title: taskText,
+            completed: false,
+        }),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      })
+        .then((response) => response.json())
+        .then((json) => console.log(json));
 
     // Очищаем поле ввода и возвращаем на него фокус
     taskInput.value = "";
@@ -75,18 +88,21 @@ function addTask(event) {
 function deleteTask(event) {
     // Проверяем если клик был НЕ по кнопке "удалить задачу"
     if (event.target.dataset.action != 'delete') return;
-        
 
     const parentNode = event.target.closest('.list-group-item');
 
     // определяем ID задачи
     const id = Number(parentNode.id);
 
-
     // находим индекс в массиве
     const index = tasks.findIndex(function (task) {
         return task.id == id;
     });
+
+    let fetchstring = `https://jsonplaceholder.typicode.com/posts/${index}`
+    fetch(fetchstring, {
+        method: 'DELETE',
+      });
 
     // Удаляем задачу из массива с задачами
     tasks.splice(index, 1)
@@ -118,13 +134,12 @@ function doneTask(event) {
     const task = tasks.find( (task) => task.id == id)
 
     // меняем статус на выполнено и обратно
-    task.done = !task.done
+    task.completed = !task.completed
 
     const taskTitle = parentNode.querySelector('.task-title');
     taskTitle.classList.toggle('task-title--done');
 
     saveToLocalStorage();
-
 }
 
 function checkEmptyList() {
@@ -150,12 +165,12 @@ function saveToLocalStorage() {
 
 function renderTask (task) {
     // Формируем CSS класс
-    const cssClass = task.done ? 'task-title task-title--done' : 'task-title'
+    const cssClass = task.completed ? 'task-title task-title--done' : 'task-title'
 
     // Формируем разметку для новой задачи
     const taskHTML = `
                 <li id="${task.id}"class="list-group-item d-flex justify-content-between task-item">
-					<span class="${cssClass}">${task.text}</span>
+					<span class="${cssClass}">${task.title}</span>
 					<div class="task-item__buttons">
 						<button type="button" data-action="done" class="btn-action">
 							<img src="./img/tick.svg" alt="Done" width="18" height="18">
@@ -168,4 +183,16 @@ function renderTask (task) {
 
     // Добавляем задачу на страницу
     tasksList.insertAdjacentHTML('beforeend', taskHTML);
+}
+
+function fetchjson() {
+    fetch('https://jsonplaceholder.typicode.com/todos?userId=1')
+      .then(function (response){
+        return response.json()
+      })
+      .then(function (json){
+        tasks = tasks.concat(json);
+        saveToLocalStorage();
+        location.reload()
+    })
 }

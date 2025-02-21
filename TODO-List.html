@@ -14,28 +14,25 @@
 		<h1>TODO-List</h1>
 		<h1>Мои задачи</h1>
 
-		<!-- List of tasks -->
 		<div class="card mb-4">
 			<ul id="tasksList" class="list-group list-group-flush">
 				
 			</ul>
 		</div>
-		<!-- //List of tasks -->
 
-		<!-- Form -->
 		<div class="card bg-light" >
 			<div class="card-header">Добавить новую задачу</div>
 			<div class="card-body">
 				<form id="form">
 					<div class="groupform">
-					<!-- <div class="form-group"> -->
+					<div class="form-group">
 						<input type="text" class="inputbox" id="taskInput" placeholder="Текст задачи" required>
 					</div>
-					<button type="submit" class="submit-button">Добавить</button>
+					<button onclick="addTask()" type="submit" class="submit-button">Добавить</button>
+					<button onclick="fetchjson()" class="submit-button">Загрузить данные</button>
 				</form>
 			</div>
 		</div>
-		<!-- //Form  -->
 
 	</div>
 
